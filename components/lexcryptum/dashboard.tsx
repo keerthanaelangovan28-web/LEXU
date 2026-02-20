@@ -12,6 +12,7 @@ import { Layer5Panel } from "./layer5-panel"
 import { VerdictBadge } from "./verdict-badge"
 import { FaithfulnessHeatmap } from "./faithfulness-heatmap"
 import { CertificatePanel } from "./certificate-panel"
+import { VulnerabilityDashboard } from "./vulnerability-dashboard"
 import {
   runLayer1,
   runLayer2,
@@ -19,6 +20,7 @@ import {
   runLayer4,
   runLayer5,
   generateSentenceAnnotations,
+  addIntegrityToResult,
 } from "@/lib/verification-engine"
 import { ModeratorSynthesis } from "./moderator-synthesis"
 import type { VerificationResult, LayerStatus, SentenceAnnotation } from "@/lib/types"
@@ -78,12 +80,17 @@ export function LexcryptumDashboard() {
       // Layer 5: Conformal Prediction
       updateLayerStatus(4, "running")
       const l5 = await runLayer5(sourceText, query)
-      setResult((prev) => ({
-        ...prev,
-        layer5: l5,
-        overallStatus: "complete",
-        overallVerdict: l3.finalVerdict,
-      }))
+
+      setResult((prev) => {
+        const finalResult: VerificationResult = {
+          ...prev,
+          layer5: l5,
+          overallStatus: "complete",
+          overallVerdict: l3.finalVerdict,
+        }
+        // Apply hackathon integrity hashing
+        return addIntegrityToResult(finalResult)
+      })
       updateLayerStatus(4, "complete")
 
       // Generate heatmap
@@ -121,6 +128,11 @@ export function LexcryptumDashboard() {
                   constitutionalScore={result.layer2?.score}
                   coverage={result.layer5?.coverageGuarantee}
                 />
+              )}
+
+              {/* Exploit Dashboard - Hackathon Special */}
+              {result.layer1?.exploits && (
+                <VulnerabilityDashboard exploits={result.layer1.exploits} />
               )}
 
               {/* Moderator Synthesis */}

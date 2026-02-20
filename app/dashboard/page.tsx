@@ -88,52 +88,7 @@ export default function DashboardPage() {
         {/* Recent Activity */}
         <RecentActivity />
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="neon-border overflow-hidden" style={{ background: '#0F172A' }}>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl neon-glow" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)' }}>
-                  <Shield className="h-7 w-7 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl font-black" style={{ color: '#F0F9FF' }}>Verify a Document</CardTitle>
-                  <CardDescription style={{ color: '#A0AEC0' }}>Initiate neural verification sequence</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm mb-6 leading-relaxed" style={{ color: '#A0AEC0' }}>
-                Upload a legal document and get instant verification using our advanced 5-layer AI system.
-              </p>
-              <Button className="w-full h-12 font-black text-lg neon-glow transition-all hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)', color: '#030712' }}>
-                START VERIFICATION
-              </Button>
-            </CardContent>
-          </Card>
 
-          <Card className="neon-border overflow-hidden" style={{ background: '#0F172A' }}>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl neon-glow" style={{ background: 'linear-gradient(135deg, #A855F7, #EC4899)' }}>
-                  <FileText className="h-7 w-7 text-white" />
-                </div>
-                <div>
-                  <CardTitle className="text-xl font-black" style={{ color: '#F0F9FF' }}>System History</CardTitle>
-                  <CardDescription style={{ color: '#A0AEC0' }}>Access encrypted verification logs</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm mb-6 leading-relaxed" style={{ color: '#A0AEC0' }}>
-                Access all your previously verified documents and their detailed verification reports.
-              </p>
-              <Button variant="outline" className="w-full h-12 font-bold text-lg border-2 hover:bg-white/5" style={{ borderColor: 'rgba(0, 180, 255, 0.3)', color: '#00B4FF' }}>
-                VIEW HISTORY
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Security Features */}
         <Card style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.2)' }}>

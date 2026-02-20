@@ -1,8 +1,10 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { FileText, Search, Loader2, ChevronDown, Upload } from "lucide-react"
+import { FileText, Search, Loader2, ChevronDown, Upload, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { SAMPLE_CONTRACT, SAMPLE_QUERIES } from "@/lib/types"
 import { extractTextFromPDF } from "@/lib/pdf-utils"
 
@@ -15,7 +17,9 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
   const [sourceText, setSourceText] = useState("")
   const [query, setQuery] = useState("")
   const [showSample, setShowSample] = useState(false)
+  const [isPrivacyProtected, setIsPrivacyProtected] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
 
   const [fileNames, setFileNames] = useState<string[]>([])
 
@@ -74,20 +78,28 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
     setShowSample(false)
   }
 
+  const redactPII = (text: string) => {
+    if (!isPrivacyProtected) return text
+    return text
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED EMAIL]")
+      .replace(/\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}/g, "[REDACTED PHONE]")
+  }
+
   function handleVerify() {
     if (sourceText.trim() && query.trim()) {
-      onVerify(sourceText, query)
+      const processedText = redactPII(sourceText)
+      onVerify(processedText, query)
     }
   }
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border p-6 neon-border transition-all duration-500" style={{ background: '#0F172A', borderColor: 'rgba(0, 180, 255, 0.2)' }}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <FileText className="h-5 w-5 text-neon" style={{ color: '#00B4FF' }} />
-          <h2 className="text-lg font-black tracking-tight text-neon" style={{ color: '#00B4FF' }}>Neural Document Analysis</h2>
+          <FileText className="h-5 w-5 text-neon shrink-0" style={{ color: '#00B4FF' }} />
+          <h2 className="text-lg font-black tracking-tight text-neon leading-tight" style={{ color: '#00B4FF' }}>Neural Document Analysis</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
           <input
             type="file"
             ref={fileInputRef}
@@ -100,7 +112,7 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
             variant="outline"
             size="sm"
             onClick={() => fileInputRef.current?.click()}
-            className="gap-2 text-xs bg-transparent"
+            className="gap-2 text-[10px] bg-transparent h-8 whitespace-nowrap"
           >
             <Upload className="h-3.5 w-3.5" />
             Upload Files
@@ -109,7 +121,7 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
             variant="outline"
             size="sm"
             onClick={loadSampleData}
-            className="text-xs bg-transparent"
+            className="text-[10px] bg-transparent h-8 whitespace-nowrap"
           >
             Load Sample NDA
           </Button>
@@ -182,6 +194,26 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Privacy Guard - Hackathon Special */}
+      <div className="flex items-center justify-between rounded-xl bg-primary/5 p-3 border border-primary/10">
+        <div className="flex items-center gap-3">
+          <div className={`rounded-full p-2 ${isPrivacyProtected ? 'bg-success/20 animate-pulse' : 'bg-slate-800'}`}>
+            <ShieldCheck className={`h-4 w-4 ${isPrivacyProtected ? 'text-success' : 'text-slate-500'}`} />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white uppercase tracking-tight">Privacy Guard <span className="text-[10px] text-primary font-black ml-1">BETA</span></p>
+            <p className="text-[9px] text-slate-400">Auto-redact PII (Emails, Phones) before processing</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="privacy-guard"
+            checked={isPrivacyProtected}
+            onCheckedChange={setIsPrivacyProtected}
+          />
+        </div>
       </div>
 
       <Button

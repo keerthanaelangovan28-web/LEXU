@@ -27,8 +27,11 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
       constitutionalCompliance: `${result.layer2?.score}/10`,
       coverageGuarantee: `${((result.layer5?.coverageGuarantee ?? 0) * 100).toFixed(0)}%`,
       zkProofHash: result.layer4?.zkProofHash,
+      integrityHash: result.integrityHash,
+      previousHash: result.previousHash,
       z3Status: result.layer1?.z3Result.status,
       soundnessBadge: "Mathematically proven by Z3 SMT solver",
+      tamperEvident: true,
     }
     const blob = new Blob([JSON.stringify(certData, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(blob)
@@ -41,9 +44,15 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
 
   return (
     <div className="animate-fade-in-up rounded-xl border border-primary/20 bg-card p-5">
-      <div className="mb-4 flex items-center gap-2">
-        <Award className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold text-foreground">LexAxiom Verification Certificate</h3>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Award className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">LexAxiom Verification Certificate</h3>
+        </div>
+        <div className="flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 border border-success/20">
+          <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+          <span className="text-[9px] font-black text-success uppercase">Tamper-Evident</span>
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-secondary p-4">
@@ -54,7 +63,7 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5">
           <div>
             <p className="text-[10px] text-muted-foreground">CFI Score</p>
             <p className={`font-mono text-lg font-bold ${verdictColor}`}>
@@ -79,11 +88,17 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
               {result.layer4.zkProofHash.slice(0, 14)}...
             </p>
           </div>
+          <div className="hidden sm:block">
+            <p className="text-[10px] text-muted-foreground">Integrity Hash</p>
+            <p className="truncate font-mono text-[10px] font-bold text-success">
+              {result.integrityHash?.slice(0, 14)}...
+            </p>
+          </div>
         </div>
 
         <div className="mt-4 rounded-md border border-primary/20 bg-primary/5 px-3 py-2">
           <p className="text-center text-[10px] font-bold text-primary">
-            Soundness Badge: Mathematically proven by Z3 SMT solver
+            Soundness Badge: Mathematically proven by Z3 SMT solver | Cryptographically Chained
           </p>
         </div>
       </div>

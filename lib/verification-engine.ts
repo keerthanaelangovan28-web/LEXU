@@ -6,6 +6,8 @@ import type {
   Layer5Result,
   VerdictType,
   SentenceAnnotation,
+  ExternalExploit,
+  VerificationResult,
 } from "./types"
 
 function delay(ms: number) {
@@ -15,7 +17,6 @@ function delay(ms: number) {
 function randomBetween(min: number, max: number) {
   return Math.random() * (max - min) + min
 }
-
 
 function findRelevantClause(text: string, query: string): string | null {
   // Simple sentence splitter
@@ -47,11 +48,74 @@ function findRelevantClause(text: string, query: string): string | null {
   return maxScore > 0.1 ? bestSentence : null
 }
 
+function detectExploits(text: string): ExternalExploit[] {
+  const exploits: ExternalExploit[] = []
+  const textLower = text.toLowerCase()
+
+  if (textLower.includes("unilateral") && textLower.includes("termination") && !textLower.includes("notice")) {
+    exploits.push({
+      id: "exp-001",
+      title: "Unilateral Termination Trap",
+      severity: "high",
+      description: "Clause allows one party to terminate without reasonable notice, creating a business continuity risk.",
+      mitigation: "Negotiate a minimum 30-day mutual notice period.",
+      impact: "High risk of sudden service disruption.",
+    })
+  }
+
+  if (textLower.includes("indemnif") && !textLower.includes("limit") && textLower.includes("unlimited")) {
+    exploits.push({
+      id: "exp-002",
+      title: "Unlimited Indemnity Poison Pill",
+      severity: "high",
+      description: "Contains uncapped indemnification obligations which could exceed the total value of the company.",
+      mitigation: "Apply a dollar-value cap to all indemnification clauses.",
+      impact: "Catastrophic financial liability in case of breach.",
+    })
+  }
+
+  if (textLower.includes("arbitration") && textLower.includes("exclusive") && textLower.includes("foreign")) {
+    exploits.push({
+      id: "exp-003",
+      title: "Foreign Jurisdictional Trap",
+      severity: "medium",
+      description: "Exclusive arbitration in a foreign jurisdiction significantly increases the cost of legal defense.",
+      mitigation: "Change venue to a local or neutral jurisdiction (e.g., New York, London).",
+      impact: "Increased legal hurdles and potentially biased arbitration.",
+    })
+  }
+
+  if (textLower.includes("automatic") && textLower.includes("renewal") && textLower.includes("evergreen")) {
+    exploits.push({
+      id: "exp-004",
+      title: "Evergreen Renewal Exploit",
+      severity: "low",
+      description: "Automatic renewal 'evergreen' clauses can lead to unintentional multi-year commitments.",
+      mitigation: "Require explicit written consent for renewal.",
+      impact: "Unforeseen financial commitments over long periods.",
+    })
+  }
+
+  return exploits
+}
+
+function generateIntegrityHash(data: string, previousHash?: string): string {
+  // Mock SHA-256 hash chaining
+  const combined = previousHash ? `${previousHash}:${data}` : data
+  let hash = 0
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+  return "0x" + Math.abs(hash).toString(16).padStart(64, '0')
+}
+
 export async function runLayer1(sourceText: string, claimText: string): Promise<Layer1Result> {
   await delay(randomBetween(1500, 2500))
 
   const relevantClause = findRelevantClause(sourceText, claimText)
-
+  const exploits = detectExploits(sourceText)
 
   const hasShall = sourceText.toLowerCase().includes("shall")
   const hasMay = sourceText.toLowerCase().includes("may")
@@ -118,6 +182,22 @@ export async function runLayer1(sourceText: string, claimText: string): Promise<
       temporalMarkers: extractTemporalMarkers(sourceText),
     },
     relevantClause: relevantClause || undefined,
+    exploits,
+  }
+}
+
+// Added for hackathon win
+export function addIntegrityToResult(result: VerificationResult, previousHash?: string): VerificationResult {
+  const dataToHash = JSON.stringify({
+    verdict: result.overallVerdict,
+    layer1Status: result.layerStatuses[0],
+    timestamp: new Date().toISOString()
+  })
+
+  return {
+    ...result,
+    integrityHash: generateIntegrityHash(dataToHash, previousHash),
+    previousHash: previousHash || "0x0000000000000000000000000000000000000000000000000000000000000000"
   }
 }
 

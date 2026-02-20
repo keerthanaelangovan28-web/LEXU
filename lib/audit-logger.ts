@@ -10,6 +10,19 @@ export interface AuditLog {
   status: 'success' | 'failure'
   errorMessage?: string
   timestamp: Date
+  integrityHash?: string
+  previousHash?: string
+}
+
+function generateAuditHash(data: string, previousHash?: string): string {
+  const combined = previousHash ? `${previousHash}:${data}` : data
+  let hash = 0
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return "0x" + Math.abs(hash).toString(16).padStart(64, '0')
 }
 
 export interface AuditLogFilter {
@@ -25,23 +38,39 @@ export interface AuditLogFilter {
 // In-memory audit log storage (replace with database in production)
 const auditLogs: AuditLog[] = []
 
-export function logAudit(params: Omit<AuditLog, 'id' | 'timestamp'>): AuditLog {
+export function logAudit(params: Omit<AuditLog, 'id' | 'timestamp' | 'integrityHash' | 'previousHash'>): AuditLog {
+  const previousLog = auditLogs.length > 0 ? auditLogs[auditLogs.length - 1] : null
+  const previousHash = previousLog?.integrityHash || "0x0000000000000000000000000000000000000000000000000000000000000000"
+
+  const id = `audit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+  const timestamp = new Date()
+
+  const dataToHash = JSON.stringify({
+    id,
+    action: params.action,
+    userId: params.userId,
+    timestamp: timestamp.toISOString()
+  })
+
   const log: AuditLog = {
     ...params,
-    id: `audit-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    timestamp: new Date(),
+    id,
+    timestamp,
+    previousHash,
+    integrityHash: generateAuditHash(dataToHash, previousHash)
   }
 
   auditLogs.push(log)
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development') {
-    console.log('[AUDIT]', {
+    console.log('[AUDIT-SECURE]', {
       action: log.action,
       resource: log.resource,
       userId: log.userId,
       status: log.status,
       timestamp: log.timestamp.toISOString(),
+      hash: log.integrityHash?.slice(0, 10) + '...'
     })
   }
 

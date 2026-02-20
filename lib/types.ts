@@ -16,6 +16,15 @@ export interface Z3Result {
   trace: string
 }
 
+export interface ExternalExploit {
+  id: string
+  title: string
+  severity: "high" | "medium" | "low"
+  description: string
+  mitigation: string
+  impact: string
+}
+
 export interface Layer1Result {
   deonticParses: DeonticParse[]
   z3Result: Z3Result
@@ -26,6 +35,7 @@ export interface Layer1Result {
     temporalMarkers: string[]
   }
   relevantClause?: string
+  exploits?: ExternalExploit[]
 }
 
 export interface ConstitutionalPrinciple {
@@ -88,6 +98,8 @@ export interface VerificationResult {
   layerStatuses: [LayerStatus, LayerStatus, LayerStatus, LayerStatus, LayerStatus]
   overallStatus: VerificationStatus
   overallVerdict: VerdictType | null
+  integrityHash?: string
+  previousHash?: string
 }
 
 export interface SentenceAnnotation {
