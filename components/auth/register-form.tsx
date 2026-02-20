@@ -59,18 +59,18 @@ export function RegisterForm() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
-        <Card className="w-full max-w-md border-slate-700 bg-slate-800">
-          <CardContent className="pt-6">
-            <div className="space-y-4 text-center">
+      <div className="flex min-h-screen items-center justify-center px-4" style={{ background: '#030712' }}>
+        <Card className="w-full max-w-lg shadow-2xl neon-border" style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.3)' }}>
+          <CardContent className="pt-8">
+            <div className="space-y-6 text-center">
               <div className="flex justify-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-                  <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl neon-glow" style={{ background: 'rgba(0, 255, 153, 0.1)', border: '1px solid rgba(0, 255, 153, 0.3)' }}>
+                  <CheckCircle className="h-10 w-10 text-success" style={{ color: '#00FF99' }} />
                 </div>
               </div>
-              <h2 className="text-xl font-semibold text-white">Registration Successful!</h2>
-              <p className="text-slate-400">
-                Your account has been created. Redirecting to login...
+              <h2 className="text-3xl font-black text-neon" style={{ color: '#00B4FF' }}>Success!</h2>
+              <p style={{ color: '#A0AEC0' }}>
+                Your neural profile has been created. Syncing with LexAxiom...
               </p>
             </div>
           </CardContent>
@@ -80,30 +80,30 @@ export function RegisterForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
-      <Card className="w-full max-w-md border-slate-700 bg-slate-800">
-        <CardHeader className="space-y-2">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
-              <UserPlus className="h-6 w-6 text-white" />
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: '#030712' }}>
+      <Card className="w-full max-w-lg shadow-2xl neon-border" style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.3)' }}>
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-center mb-2">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl neon-glow" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)' }}>
+              <UserPlus className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-center text-2xl">Create Account</CardTitle>
-          <CardDescription className="text-center">
-            Join LexAxiom and secure your documents
+          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>Join LexAxiom</CardTitle>
+          <CardDescription className="text-center" style={{ color: '#A0AEC0' }}>
+            Initialize your cryptographic verification profile
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <Alert className="border-red-500 bg-red-50">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              <Alert className="border-destructive/50 bg-destructive/10">
+                <AlertCircle className="h-4 w-4" style={{ color: '#FF4D4D' }} />
+                <AlertDescription style={{ color: '#FF4D4D' }}>{error}</AlertDescription>
               </Alert>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-200">Full Name</Label>
+              <Label htmlFor="name" style={{ color: '#F0F9FF', fontWeight: 600 }}>Full Name</Label>
               <Input
                 id="name"
                 name="name"
@@ -111,27 +111,27 @@ export function RegisterForm() {
                 placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
-                className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-400"
+                className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-200">Email</Label>
+              <Label htmlFor="email" style={{ color: '#F0F9FF', fontWeight: 600 }}>Email Address</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="you@lexaxiom.ai"
                 value={formData.email}
                 onChange={handleChange}
-                className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-400"
+                className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-200">Password</Label>
+              <Label htmlFor="password" style={{ color: '#F0F9FF', fontWeight: 600 }}>Neural Passkey</Label>
               <Input
                 id="password"
                 name="password"
@@ -139,16 +139,13 @@ export function RegisterForm() {
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
-                className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-400"
+                className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
                 required
               />
-              <p className="text-xs text-slate-400">
-                At least 8 characters
-              </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-slate-200">Confirm Password</Label>
+              <Label htmlFor="confirmPassword" style={{ color: '#F0F9FF', fontWeight: 600 }}>Verify Passkey</Label>
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
@@ -156,7 +153,7 @@ export function RegisterForm() {
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-400"
+                className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
                 required
               />
             </div>
@@ -164,15 +161,16 @@ export function RegisterForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white"
+              className="w-full h-12 font-black text-lg neon-glow transition-all hover:scale-[1.02]"
+              style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)', color: '#030712' }}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {isLoading ? 'INITIALIZING...' : 'CREATE ACCOUNT'}
             </Button>
 
-            <p className="text-center text-sm text-slate-400">
-              Already have an account?{' '}
-              <a href="/auth/login" className="text-cyan-500 hover:text-cyan-400">
-                Sign in
+            <p className="text-center text-sm" style={{ color: '#64748B' }}>
+              Already registered?{' '}
+              <a href="/auth/login" className="font-bold hover:underline" style={{ color: '#00B4FF' }}>
+                ACCESS PORTAL
               </a>
             </p>
           </form>

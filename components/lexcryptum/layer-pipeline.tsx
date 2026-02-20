@@ -30,35 +30,35 @@ interface LayerPipelineProps {
 
 export function LayerPipeline({ statuses }: LayerPipelineProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <h3 className="mb-4 text-sm font-semibold text-foreground">Verification Pipeline</h3>
-      <div className="flex flex-col gap-2">
+    <div className="rounded-2xl border p-6 neon-border transition-all duration-500" style={{ background: '#0F172A', borderColor: 'rgba(0, 180, 255, 0.2)' }}>
+      <h3 className="mb-6 text-sm font-black uppercase tracking-widest text-neon" style={{ color: '#00B4FF' }}>Verification Pipeline</h3>
+      <div className="flex flex-col gap-3">
         {LAYERS.map((layer, idx) => {
           const status = statuses[idx]
           const Icon = layer.icon
           return (
             <div
               key={layer.id}
-              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 transition-all ${
-                status === "running"
-                  ? "border-primary/40 bg-primary/5"
+              className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-all duration-300 ${status === "running"
+                  ? "neon-glow border-primary/60 bg-primary/20 scale-[1.02]"
                   : status === "complete"
-                  ? "border-success/20 bg-success/5"
-                  : "border-border bg-secondary"
-              }`}
+                    ? "border-success/40 bg-success/10"
+                    : "border-white/5 bg-black/20 opacity-60"
+                }`}
             >
-              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                status === "complete" ? "bg-success/10" : status === "running" ? "bg-primary/10" : "bg-muted"
-              }`}>
-                <Icon className={`h-4 w-4 ${status === "complete" ? "text-success" : status === "running" ? "text-primary" : "text-muted-foreground"}`} />
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${status === "complete" ? "bg-success/20" : status === "running" ? "bg-primary/20" : "bg-white/5"
+                }`}>
+                <Icon className={`h-5 w-5 ${status === "complete" ? "text-success" : status === "running" ? "text-primary" : "text-slate-500"}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className={`text-xs font-semibold ${status === "complete" || status === "running" ? "text-foreground" : "text-muted-foreground"}`}>
+                <p className={`text-sm font-black tracking-tight ${status === "complete" || status === "running" ? "text-white" : "text-slate-500"}`}>
                   Layer {layer.id}: {layer.name}
                 </p>
-                <p className="text-[10px] text-muted-foreground">{layer.description}</p>
+                <p className="text-[11px] font-medium" style={{ color: status === "complete" || status === "running" ? '#A0AEC0' : '#475569' }}>{layer.description}</p>
               </div>
-              <StatusIcon status={status} />
+              <div className="flex h-6 w-6 items-center justify-center">
+                <StatusIcon status={status} />
+              </div>
             </div>
           )
         })}

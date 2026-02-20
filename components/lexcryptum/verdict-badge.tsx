@@ -42,31 +42,31 @@ export function VerdictBadge({ verdict, cfiScore, constitutionalScore, coverage 
   const Icon = c.icon
 
   return (
-    <div className={`animate-fade-in-up rounded-xl border ${c.border} ${c.bg} p-5`}>
+    <div className={`animate-fade-in-up rounded-xl border ${c.border} ${c.bg} p-6 neon-glow`} style={{ borderColor: verdict === 'VERIFIED' ? 'rgba(0, 255, 153, 0.4)' : verdict === 'HALLUCINATION' ? 'rgba(255, 77, 77, 0.4)' : 'rgba(0, 180, 255, 0.4)' }}>
       <div className="flex items-start gap-4">
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${c.bg} border ${c.border}`}>
-          <Icon className={`h-6 w-6 ${c.textColor}`} />
+        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${c.bg} border ${c.border} neon-glow`}>
+          <Icon className={`h-8 w-8 ${c.textColor}`} />
         </div>
         <div className="flex-1">
-          <h3 className={`text-lg font-bold ${c.textColor}`}>{c.label}</h3>
-          <p className="mt-1 text-xs leading-relaxed text-foreground">{c.description}</p>
-          <div className="mt-3 flex flex-wrap gap-3">
+          <h3 className={`text-xl font-black tracking-tighter ${c.textColor}`}>{c.label}</h3>
+          <p className="mt-1 text-sm font-medium leading-relaxed" style={{ color: '#A0AEC0' }}>{c.description}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
             {cfiScore !== undefined && (
-              <div className="rounded-md bg-card px-2.5 py-1.5 border border-border">
-                <p className="text-[9px] text-muted-foreground">CFI Score</p>
-                <p className={`font-mono text-sm font-bold ${c.textColor}`}>{cfiScore.toFixed(3)}</p>
+              <div className="rounded-xl bg-black/40 px-3 py-2 border border-white/5 neon-border">
+                <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">CFI Confidence</p>
+                <p className={`font-mono text-base font-black ${c.textColor}`}>{cfiScore.toFixed(3)}</p>
               </div>
             )}
             {constitutionalScore !== undefined && (
-              <div className="rounded-md bg-card px-2.5 py-1.5 border border-border">
-                <p className="text-[9px] text-muted-foreground">Constitutional</p>
-                <p className={`font-mono text-sm font-bold ${c.textColor}`}>{constitutionalScore}/10</p>
+              <div className="rounded-xl bg-black/40 px-3 py-2 border border-white/5 neon-border">
+                <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Constitutional AI</p>
+                <p className={`font-mono text-base font-black ${c.textColor}`}>{constitutionalScore}/10</p>
               </div>
             )}
             {coverage !== undefined && (
-              <div className="rounded-md bg-card px-2.5 py-1.5 border border-border">
-                <p className="text-[9px] text-muted-foreground">Coverage</p>
-                <p className={`font-mono text-sm font-bold ${c.textColor}`}>{(coverage * 100).toFixed(0)}%</p>
+              <div className="rounded-xl bg-black/40 px-3 py-2 border border-white/5 neon-border">
+                <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">Context Coverage</p>
+                <p className={`font-mono text-base font-black ${c.textColor}`}>{(coverage * 100).toFixed(0)}%</p>
               </div>
             )}
           </div>

@@ -49,19 +49,19 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
         <div>
-          <h2 className="text-2xl font-bold text-white">Account Settings</h2>
-          <p className="text-slate-400 text-sm">Manage your account preferences and security</p>
+          <h2 className="text-3xl font-black tracking-tight" style={{ color: '#F0F9FF' }}>Account Settings</h2>
+          <p className="text-sm mt-1" style={{ color: '#64748B' }}>Manage your account preferences and security protocols</p>
         </div>
 
-        <Tabs defaultValue="profile" className="space-y-4">
-          <TabsList className="bg-slate-800 border-slate-700">
-            <TabsTrigger value="profile" className="data-[state=active]:bg-slate-700">
+        <Tabs defaultValue="profile" className="space-y-6">
+          <TabsList className="p-1 rounded-xl" style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.2)' }}>
+            <TabsTrigger value="profile" className="px-6 py-2 rounded-lg transition-all data-[state=active]:bg-primary/10 data-[state=active]:text-neon">
               <Settings className="mr-2 h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="security" className="data-[state=active]:bg-slate-700">
+            <TabsTrigger value="security" className="px-6 py-2 rounded-lg transition-all data-[state=active]:bg-primary/10 data-[state=active]:text-neon">
               <Lock className="mr-2 h-4 w-4" />
               Security
             </TabsTrigger>
@@ -73,19 +73,19 @@ export default function SettingsPage() {
           </TabsContent>
 
           {/* Security Tab */}
-          <TabsContent value="security" className="space-y-4">
+          <TabsContent value="security" className="space-y-6">
             <PasswordForm />
 
-            <Card className="border-slate-700 bg-slate-800/50 glass-effect">
+            <Card className="neon-border" style={{ background: '#0F172A' }}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-cyan-400" />
+                <CardTitle className="flex items-center gap-3 text-xl font-black" style={{ color: '#F0F9FF' }}>
+                  <Shield className="h-6 w-6 neon-glow" style={{ color: '#00B4FF' }} />
                   Two-Factor Authentication
                 </CardTitle>
-                <CardDescription>
+                <CardDescription style={{ color: '#A0AEC0' }}>
                   {profile?.mfaEnabled
-                    ? 'Your account is protected with two-factor authentication'
-                    : 'Add an extra layer of security to your account'}
+                    ? 'Your account is protected with enterprise-grade MFA'
+                    : 'Add an extra layer of neural security to your account'}
                 </CardDescription>
               </CardHeader>
               <CardContent>

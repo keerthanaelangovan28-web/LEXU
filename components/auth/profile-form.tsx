@@ -1,20 +1,43 @@
 'use client'
 
-import { useState } from 'react'
-import { useAuth } from '@/contexts/auth-context'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 
+interface UserData {
+  name: string
+  email: string
+}
+
+function getUserFromCookie(): UserData | null {
+  if (typeof document === 'undefined') return null
+  const userCookie = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('auth-user='))
+  if (!userCookie) return null
+  try {
+    return JSON.parse(decodeURIComponent(userCookie.split('=')[1]))
+  } catch {
+    return null
+  }
+}
+
 export function ProfileForm() {
-  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
   })
+
+  useEffect(() => {
+    const user = getUserFromCookie()
+    if (user) {
+      setFormData({ name: user.name || '', email: user.email || '' })
+    }
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target

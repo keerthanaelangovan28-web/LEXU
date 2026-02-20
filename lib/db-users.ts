@@ -21,7 +21,7 @@ export interface StoredUser {
 }
 
 // In-memory user database (replace with real database in production)
-const users: StoredUser[] = []
+export const users: StoredUser[] = []
 
 // Seed default admin user
 const defaultAdminUser: StoredUser = {

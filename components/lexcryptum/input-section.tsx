@@ -23,32 +23,49 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    try {
-      const newFileNames: string[] = []
-      let combinedText = sourceText ? sourceText + "\n\n" : ""
+    const newFileNames: string[] = []
+    let combinedText = sourceText ? sourceText + "\n\n" : ""
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        newFileNames.push(file.name)
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
 
+      try {
         let text = ""
+
         if (file.type === "application/pdf") {
           text = await extractTextFromPDF(file)
-        } else if (file.type === "text/plain") {
+        } else if (
+          file.type === "text/plain" ||
+          file.name.endsWith(".txt") ||
+          file.name.endsWith(".md") ||
+          file.name.endsWith(".csv")
+        ) {
           text = await file.text()
         } else {
-          continue
+          // Try reading as text as a fallback for unsupported types
+          try {
+            text = await file.text()
+          } catch {
+            alert(`File "${file.name}" is not a supported format. Please use PDF or TXT files.`)
+            continue
+          }
         }
 
+        newFileNames.push(file.name)
         combinedText += `--- Document: ${file.name} ---\n${text}\n\n`
+      } catch (err) {
+        console.error(`Error reading file ${file.name}:`, err)
+        alert(`Failed to read "${file.name}". Please make sure it is a valid PDF or text file.`)
       }
+    }
 
+    if (newFileNames.length > 0) {
       setSourceText(combinedText)
       setFileNames((prev) => [...prev, ...newFileNames])
-    } catch (error) {
-      console.error("File upload error:", error)
-      alert("Failed to read file(s)")
     }
+
+    // Reset the input so the same file can be re-selected
+    e.target.value = ""
   }
 
   function loadSampleData() {
@@ -64,11 +81,11 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border p-6 neon-border transition-all duration-500" style={{ background: '#0F172A', borderColor: 'rgba(0, 180, 255, 0.2)' }}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold text-foreground">Document Input</h2>
+        <div className="flex items-center gap-3">
+          <FileText className="h-5 w-5 text-neon" style={{ color: '#00B4FF' }} />
+          <h2 className="text-lg font-black tracking-tight text-neon" style={{ color: '#00B4FF' }}>Neural Document Analysis</h2>
         </div>
         <div className="flex gap-2">
           <input

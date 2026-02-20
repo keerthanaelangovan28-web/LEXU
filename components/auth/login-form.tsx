@@ -58,15 +58,15 @@ export function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4">
-      <Card className="w-full max-w-md border-slate-700 bg-slate-800">
-        <CardHeader className="space-y-2">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
-              <Lock className="h-6 w-6 text-white" />
+    <div className="flex min-h-screen items-center justify-center px-4" style={{ background: '#030712' }}>
+      <Card className="w-full max-w-md shadow-2xl neon-border" style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.3)' }}>
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-center mb-2">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl neon-glow" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)' }}>
+              <Lock className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-center text-2xl">LexAxiom</CardTitle>
+          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>LexAxiom</CardTitle>
           <CardDescription className="text-center">
             {mfaRequired ? 'Enter your authenticator code' : 'Sign in to your account'}
           </CardDescription>

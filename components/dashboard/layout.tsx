@@ -12,7 +12,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuItemLink,
 } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,13 +22,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import {
   Shield,
-  FileCheck,
   Users,
   Settings,
   LogOut,
   Home,
   BarChart3,
-  Lock,
   Menu,
 } from 'lucide-react'
 
@@ -50,7 +47,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Get user from cookies
     const userCookie = document.cookie
       .split('; ')
       .find((row) => row.startsWith('auth-user='))
@@ -77,8 +73,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="text-slate-400">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen" style={{ background: '#0B1120' }}>
+        <div style={{ color: '#94A3B8' }}>Loading...</div>
       </div>
     )
   }
@@ -98,24 +94,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       label: 'Verify Document',
       href: '/dashboard/verify',
     },
-    {
-      icon: FileCheck,
-      label: 'My Documents',
-      href: '/dashboard/documents',
-    },
     ...(user.role === 'admin' || user.role === 'super-admin'
       ? [
-          {
-            icon: Users,
-            label: 'User Management',
-            href: '/dashboard/admin/users',
-          },
-          {
-            icon: BarChart3,
-            label: 'Audit Logs',
-            href: '/dashboard/admin/audit-logs',
-          },
-        ]
+        {
+          icon: Users,
+          label: 'User Management',
+          href: '/dashboard/admin/users',
+        },
+        {
+          icon: BarChart3,
+          label: 'Audit Logs',
+          href: '/dashboard/admin/audit-logs',
+        },
+      ]
       : []),
     {
       icon: Settings,
@@ -126,14 +117,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <Sidebar className="border-r border-slate-700 bg-slate-800/50 backdrop-blur">
-          <SidebarHeader className="border-b border-slate-700">
+      <div className="flex w-full min-h-screen" style={{ background: '#030712' }}>
+        {/* Sidebar */}
+        <Sidebar className="neon-border" style={{ background: '#0F172A', borderRight: '1px solid rgba(0, 180, 255, 0.2)' }}>
+          <SidebarHeader style={{ borderBottom: '1px solid rgba(0, 180, 255, 0.1)' }}>
             <div className="flex items-center gap-2 px-2 py-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg neon-glow" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)' }}>
                 <Shield className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">LexAxiom</span>
+              <span className="text-lg font-bold text-neon" style={{ color: '#00B4FF' }}>LexAxiom</span>
             </div>
           </SidebarHeader>
 
@@ -144,7 +136,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   <SidebarMenuButton asChild>
                     <a
                       href={item.href}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white"
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300"
+                      style={{ color: '#A0AEC0' }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(0, 180, 255, 0.1)'
+                          ; (e.currentTarget as HTMLElement).style.color = '#00B4FF'
+                          ; (e.currentTarget as HTMLElement).style.boxShadow = '0 0 10px rgba(0, 180, 255, 0.2)'
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLElement).style.background = 'transparent'
+                          ; (e.currentTarget as HTMLElement).style.color = '#A0AEC0'
+                          ; (e.currentTarget as HTMLElement).style.boxShadow = 'none'
+                      }}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
@@ -155,11 +158,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="border-t border-slate-700">
+          <SidebarFooter style={{ borderTop: '1px solid rgba(0, 180, 255, 0.1)' }}>
             <div className="flex items-center justify-between p-2">
-              <div className="flex-1">
-                <p className="text-xs font-medium text-white">{user.name}</p>
-                <p className="text-xs text-slate-400">{user.email}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold truncate" style={{ color: '#F0F9FF' }}>{user.name}</p>
+                <p className="text-xs truncate" style={{ color: '#64748B' }}>{user.email}</p>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -168,13 +171,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     size="sm"
                     className="h-8 w-8 rounded-full"
                   >
-                    <Menu className="h-4 w-4" />
+                    <Menu className="h-4 w-4" style={{ color: '#00B4FF' }} />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-slate-700 border-slate-600">
+                <DropdownMenuContent align="end" style={{ background: '#1E293B', border: '1px solid rgba(0, 180, 255, 0.3)' }}>
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-slate-200 focus:bg-slate-600 cursor-pointer"
+                    className="cursor-pointer hover:bg-neon-blue/20"
+                    style={{ color: '#F0F9FF' }}
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
@@ -185,17 +189,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 overflow-auto">
-          <div className="bg-gradient-to-b from-slate-800/50 to-transparent backdrop-blur-sm border-b border-slate-700 sticky top-0 z-10">
+        {/* Main content — full width */}
+        <main className="flex-1 overflow-auto" style={{ minWidth: 0 }}>
+          {/* Top bar */}
+          <div
+            className="sticky top-0 z-10 backdrop-blur-md"
+            style={{ background: 'rgba(3, 7, 18, 0.8)', borderBottom: '1px solid rgba(0, 180, 255, 0.2)' }}
+          >
             <div className="flex items-center justify-between px-6 py-4">
-              <h1 className="text-2xl font-bold text-white">LexAxiom Dashboard</h1>
-              <div className="text-xs text-slate-400">
-                Secure • Encrypted • Verified
+              <h1 className="text-2xl font-black tracking-tight text-neon" style={{ color: '#00B4FF' }}>LexAxiom Dashboard</h1>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-success neon-glow animate-pulse" />
+                <div className="text-xs font-bold uppercase tracking-widest" style={{ color: '#00B4FF' }}>
+                  Secure • Encrypted
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="p-6">
+          <div className="p-6 w-full">
             {children}
           </div>
         </main>
