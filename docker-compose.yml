@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # LexAxiom Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      - REFRESH_SECRET=${REFRESH_SECRET:-dev_refresh_secret_change_in_production}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-c6e3cfdc39b8e67f6c4d7a8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://lexaxiom:lexaxiom123@postgres:5432/lexaxiom}
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - lexaxiom-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL Database (Optional)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=lexaxiom
+      - POSTGRES_PASSWORD=lexaxiom123
+      - POSTGRES_DB=lexaxiom
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - lexaxiom-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lexaxiom"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lexaxiom-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  lexaxiom-network:
+    driver: bridge
