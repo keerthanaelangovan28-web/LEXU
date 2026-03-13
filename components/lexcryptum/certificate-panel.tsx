@@ -47,7 +47,7 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Award className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">LexAxiom Verification Certificate</h3>
+          <h3 className="text-sm font-semibold text-foreground">LEX AXIOM Verification Certificate</h3>
         </div>
         <div className="flex items-center gap-1 rounded bg-success/10 px-2 py-0.5 border border-success/20">
           <div className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
@@ -120,7 +120,7 @@ export function CertificatePanel({ result }: CertificatePanelProps) {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: "LexAxiom Verification",
+                title: "LEX AXIOM Verification",
                 text: `Verdict: ${verdict} | CFI: ${result.layer3?.cfiScore.toFixed(3)}`,
               })
             }

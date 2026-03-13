@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyPassword, generateTokens, setAuthCookies } from '@/lib/auth'
 import { getUserByEmail, updateLastLogin } from '@/lib/db-users'
 import { logAudit } from '@/lib/audit-logger'
-import { verifyTOTPToken, verifyBackupCode, validateMFAToken } from '@/lib/mfa'
+import { validateMFAToken, verifyBackupCode } from '@/lib/mfa'
+import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, mfaToken } = await request.json()
+    const { email, password, mfaToken, rememberMe } = await request.json()
 
     // Validate input
     if (!email || !password) {
@@ -16,15 +17,19 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // BUG 1 FIX: normalise email before lookup
+    const normalisedEmail = email.toLowerCase().trim()
+
     // Get user
-    const user = await getUserByEmail(email)
+    const user = await getUserByEmail(normalisedEmail)
 
     if (!user) {
+      console.error(`[LexAxiom] Login failed — user not found for email: "${normalisedEmail}"`)
       logAudit({
         userId: 'unknown',
         action: 'login_failed',
         resource: 'auth',
-        details: { email, reason: 'user_not_found' },
+        details: { email: normalisedEmail, reason: 'user_not_found' },
         ipAddress: request.headers.get('x-forwarded-for') || '',
         userAgent: request.headers.get('user-agent') || '',
         status: 'failure',
@@ -42,7 +47,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         action: 'login_failed',
         resource: 'auth',
-        details: { email, reason: 'account_inactive' },
+        details: { email: normalisedEmail, reason: 'account_inactive' },
         ipAddress: request.headers.get('x-forwarded-for') || '',
         userAgent: request.headers.get('user-agent') || '',
         status: 'failure',
@@ -59,11 +64,16 @@ export async function POST(request: NextRequest) {
     const isPasswordValid = await verifyPassword(password, user.passwordHash)
 
     if (!isPasswordValid) {
+      // BUG 1 FIX: detailed error logging for password mismatch
+      console.error(
+        `[LexAxiom] Login failed — password mismatch for user "${normalisedEmail}". ` +
+        `Stored hash prefix: "${user.passwordHash.substring(0, 10)}..."`
+      )
       logAudit({
         userId: user.id,
         action: 'login_failed',
         resource: 'auth',
-        details: { email, reason: 'invalid_password' },
+        details: { email: normalisedEmail, reason: 'invalid_password' },
         ipAddress: request.headers.get('x-forwarded-for') || '',
         userAgent: request.headers.get('user-agent') || '',
         status: 'failure',
@@ -97,7 +107,7 @@ export async function POST(request: NextRequest) {
             userId: user.id,
             action: 'login_failed',
             resource: 'auth',
-            details: { email, reason: 'invalid_mfa' },
+            details: { email: normalisedEmail, reason: 'invalid_mfa' },
             ipAddress: request.headers.get('x-forwarded-for') || '',
             userAgent: request.headers.get('user-agent') || '',
             status: 'failure',
@@ -137,29 +147,45 @@ export async function POST(request: NextRequest) {
       createdAt: user.createdAt,
     })
 
-    // Set cookies
-    await setAuthCookies({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        createdAt: user.createdAt,
-      },
-      token,
-      refreshToken,
-      expiresAt,
+    // BUG 1 FIX: Remember Me — 30-day session if requested
+    const sessionMaxAge = rememberMe ? 30 * 24 * 60 * 60 : 60 * 60 // 30 days or 1 hour
+
+    const cookieStore = await cookies()
+    cookieStore.set('auth-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: sessionMaxAge,
+    })
+    cookieStore.set('refresh-token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 : 7 * 24 * 60 * 60,
+    })
+    cookieStore.set('auth-user', JSON.stringify({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      createdAt: user.createdAt,
+    }), {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: sessionMaxAge,
     })
 
     logAudit({
       userId: user.id,
       action: 'login_success',
       resource: 'auth',
-      details: { email, role: user.role },
+      details: { email: normalisedEmail, role: user.role, rememberMe: !!rememberMe },
       ipAddress: request.headers.get('x-forwarded-for') || '',
       userAgent: request.headers.get('user-agent') || '',
       status: 'success',
     })
+
+    console.log(`[LexAxiom] Login success for "${normalisedEmail}" (rememberMe: ${!!rememberMe})`)
 
     return NextResponse.json({
       success: true,
@@ -172,7 +198,7 @@ export async function POST(request: NextRequest) {
       expiresAt,
     })
   } catch (error) {
-    console.error('[v0] Login error:', error)
+    console.error('[LexAxiom] Login error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

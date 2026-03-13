@@ -24,10 +24,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate password strength
+    // Proper password validation: 8+ chars, at least one letter + one digit
     if (password.length < 8) {
       return NextResponse.json(
-        { error: 'Password must be at least 8 characters' },
+        { error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      )
+    }
+
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return NextResponse.json(
+        { error: 'Password must contain at least one letter and one number' },
         { status: 400 }
       )
     }
@@ -39,15 +46,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // BUG 1 FIX: normalise email before duplicate check
+    const normalisedEmail = email.toLowerCase().trim()
+
     // Check if user already exists
-    const existingUser = await getUserByEmail(email)
+    const existingUser = await getUserByEmail(normalisedEmail)
 
     if (existingUser) {
       logAudit({
         userId: 'unknown',
         action: 'register_failed',
         resource: 'auth',
-        details: { email, reason: 'email_already_exists' },
+        details: { email: normalisedEmail, reason: 'email_already_exists' },
         ipAddress: request.headers.get('x-forwarded-for') || '',
         userAgent: request.headers.get('user-agent') || '',
         status: 'failure',
@@ -60,12 +70,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Hash password
+    // Hash password (bcrypt — works correctly with 4-digit PINs)
     const passwordHash = await hashPassword(password)
 
     // Create user (default role: viewer)
     const newUser = await createUser({
-      email,
+      email: normalisedEmail,
       passwordHash,
       name,
       role: 'viewer',
@@ -77,7 +87,7 @@ export async function POST(request: NextRequest) {
       userId: newUser.id,
       action: 'register_success',
       resource: 'auth',
-      details: { email, name },
+      details: { email: normalisedEmail, name },
       ipAddress: request.headers.get('x-forwarded-for') || '',
       userAgent: request.headers.get('user-agent') || '',
       status: 'success',
@@ -97,7 +107,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('[v0] Registration error:', error)
+    console.error('[LexAxiom] Registration error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

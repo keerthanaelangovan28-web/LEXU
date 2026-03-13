@@ -20,14 +20,18 @@ export interface StoredUser {
   encryptedPhone?: { ciphertext: string; iv: string; authTag: string }
 }
 
-// In-memory user database (replace with real database in production)
-export const users: StoredUser[] = []
+// BUG 1 FIX: Use a global singleton instead of a plain module-level array.
+// In Next.js dev mode, hot-reload re-evaluates modules and resets plain arrays,
+// causing registered users to vanish. The global object persists across re-imports.
+declare global {
+  // eslint-disable-next-line no-var
+  var __lexaxiom_users: StoredUser[] | undefined
+}
 
-// Seed default admin user
 const defaultAdminUser: StoredUser = {
   id: 'admin-001',
   email: 'admin@lexaxiom.com',
-  passwordHash: '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gJXUFm', // 'admin123' hashed
+  passwordHash: '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcg7b3XeKeUxWdeS86E36gJXUFm', // 'admin123'
   name: 'System Administrator',
   role: 'super-admin',
   avatar: undefined,
@@ -39,22 +43,28 @@ const defaultAdminUser: StoredUser = {
   isActive: true,
 }
 
-// Initialize with default admin
-if (users.length === 0) {
-  users.push(defaultAdminUser)
+if (!global.__lexaxiom_users) {
+  global.__lexaxiom_users = [defaultAdminUser]
 }
+
+// Expose as a simple reference — always points to the singleton
+export const users: StoredUser[] = global.__lexaxiom_users
 
 export async function getUserById(id: string): Promise<StoredUser | null> {
   return users.find((u) => u.id === id) || null
 }
 
 export async function getUserByEmail(email: string): Promise<StoredUser | null> {
-  return users.find((u) => u.email.toLowerCase() === email.toLowerCase()) || null
+  // BUG 1 FIX: always compare as lowercase so "User@Email.com" finds "user@email.com"
+  const normalised = email.toLowerCase().trim()
+  return users.find((u) => u.email === normalised) || null
 }
 
 export async function createUser(userData: Omit<StoredUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<StoredUser> {
   const newUser: StoredUser = {
     ...userData,
+    // BUG 1 FIX: always store email in lowercase
+    email: userData.email.toLowerCase().trim(),
     id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -63,13 +73,14 @@ export async function createUser(userData: Omit<StoredUser, 'id' | 'createdAt' |
 
   // Encrypt sensitive data
   if (userData.email) {
-    newUser.encryptedEmail = encryptData(userData.email)
+    newUser.encryptedEmail = encryptData(userData.email.toLowerCase().trim())
   }
   if (userData.phone) {
     newUser.encryptedPhone = encryptData(userData.phone)
   }
 
   users.push(newUser)
+  console.log(`[LexAxiom] User created: ${newUser.email} (id: ${newUser.id}). Total users: ${users.length}`)
   return newUser
 }
 
@@ -83,14 +94,15 @@ export async function updateUser(id: string, updates: Partial<StoredUser>): Prom
   const updatedUser: StoredUser = {
     ...users[index],
     ...updates,
-    id: users[index].id, // Keep original ID
-    createdAt: users[index].createdAt, // Keep original creation date
+    id: users[index].id,
+    createdAt: users[index].createdAt,
     updatedAt: new Date(),
   }
 
   // Re-encrypt sensitive data if updated
   if (updates.email) {
-    updatedUser.encryptedEmail = encryptData(updates.email)
+    updatedUser.email = updates.email.toLowerCase().trim()
+    updatedUser.encryptedEmail = encryptData(updatedUser.email)
   }
   if (updates.phone) {
     updatedUser.encryptedPhone = encryptData(updates.phone)
@@ -114,7 +126,6 @@ export async function deleteUser(id: string): Promise<boolean> {
 export async function getAllUsers(): Promise<StoredUser[]> {
   return users.map((u) => ({
     ...u,
-    // Don't expose sensitive data in list view
     passwordHash: '',
     mfaSecret: undefined,
     backupCodes: undefined,
