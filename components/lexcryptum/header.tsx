@@ -1,6 +1,7 @@
 "use client"
 
 import { Shield } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function LexcryptumHeader() {
   return (
@@ -20,6 +21,7 @@ export function LexcryptumHeader() {
           <span className="text-xs font-bold uppercase tracking-wide" style={{ color: '#00B4FF' }}>5 Layers Active</span>
         </div>
         <span className="text-[10px] font-mono font-bold" style={{ color: '#64748B' }}>v1.0.4-BETA</span>
+        <ThemeToggle />
       </div>
     </header>
   )
