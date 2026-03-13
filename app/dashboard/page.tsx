@@ -1,19 +1,45 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/dashboard/layout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Statistics } from '@/components/dashboard/statistics'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import { SecurityAlerts, RecentActivity } from '@/components/dashboard/alerts'
-import { Shield, FileText, Users, Lock, TrendingUp, Clock } from 'lucide-react'
+import { FileText, TrendingUp, Clock, Lock } from 'lucide-react'
+
+interface VerificationStats {
+  verifications: number
+  trend: string
+}
 
 export default function DashboardPage() {
+  // BUG 3 FIX: fetch real verification stats instead of hardcoded values
+  const [verStats, setVerStats] = useState<VerificationStats | null>(null)
+  const [statsLoading, setStatsLoading] = useState(true)
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then((r) => r.json())
+      .then((data) => setVerStats(data))
+      .catch(() => setVerStats({ verifications: 0, trend: 'No verifications yet' }))
+      .finally(() => setStatsLoading(false))
+  }, [])
+
   const stats = [
     {
       title: 'Verifications',
-      value: '1,234',
+      // BUG 3 FIX: show real count; skeleton while loading; "0" if none
+      value: statsLoading
+        ? '—'
+        : verStats
+        ? verStats.verifications.toLocaleString()
+        : '0',
       description: 'Total verified documents',
       icon: FileText,
-      trend: '+12% from last month',
+      trend: statsLoading
+        ? 'Loading…'
+        : verStats?.trend ?? 'No verifications yet',
     },
     {
       title: 'Success Rate',
@@ -62,7 +88,12 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-black text-neon" style={{ color: '#F0F9FF' }}>{stat.value}</div>
+                <div
+                  className={`text-3xl font-black text-neon transition-opacity duration-300 ${statsLoading && stat.title === 'Verifications' ? 'opacity-40 animate-pulse' : 'opacity-100'}`}
+                  style={{ color: '#F0F9FF' }}
+                >
+                  {stat.value}
+                </div>
                 <p className="text-xs mt-1 font-medium" style={{ color: '#64748B' }}>{stat.description}</p>
                 <p className="text-xs mt-3 flex items-center gap-1 font-bold" style={{ color: '#00FF99' }}>
                   <span className="h-1.5 w-1.5 rounded-full bg-success neon-glow" />
@@ -87,8 +118,6 @@ export default function DashboardPage() {
 
         {/* Recent Activity */}
         <RecentActivity />
-
-
 
         {/* Security Features */}
         <Card style={{ background: '#0F172A', border: '1px solid rgba(0, 180, 255, 0.2)' }}>

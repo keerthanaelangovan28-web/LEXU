@@ -94,38 +94,37 @@ export function InputSection({ onVerify, isProcessing }: InputSectionProps) {
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border p-6 neon-border transition-all duration-500" style={{ background: '#0F172A', borderColor: 'rgba(0, 180, 255, 0.2)' }}>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <FileText className="h-5 w-5 text-neon shrink-0" style={{ color: '#00B4FF' }} />
-          <h2 className="text-lg font-black tracking-tight text-neon leading-tight" style={{ color: '#00B4FF' }}>Neural Document Analysis</h2>
-        </div>
-        <div className="flex flex-wrap gap-2 sm:shrink-0">
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept=".txt,.pdf"
-            multiple
-            onChange={handleFileUpload}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-            className="gap-2 text-[10px] bg-transparent h-8 whitespace-nowrap"
-          >
-            <Upload className="h-3.5 w-3.5" />
-            Upload Files
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={loadSampleData}
-            className="text-[10px] bg-transparent h-8 whitespace-nowrap"
-          >
-            Load Sample NDA
-          </Button>
-        </div>
+      {/* Header row — title only */}
+      <div className="flex items-center gap-3">
+        <FileText className="h-5 w-5 shrink-0" style={{ color: '#00B4FF' }} />
+        <h2 className="text-lg font-black tracking-tight leading-tight" style={{ color: '#00B4FF' }}>Neural Document Analysis</h2>
+      </div>
+
+      {/* BUG 4 FIX: buttons centered below header, equal width, primary + ghost */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".txt,.pdf"
+        multiple
+        onChange={handleFileUpload}
+      />
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <Button
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full max-w-xs gap-2 font-bold neon-glow"
+          style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)', color: '#030712' }}
+        >
+          <Upload className="h-4 w-4" />
+          Upload Files
+        </Button>
+        <Button
+          variant="outline"
+          onClick={loadSampleData}
+          className="w-full max-w-xs gap-2 font-bold border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 hover:text-cyan-300 bg-transparent"
+        >
+          View Sample Data
+        </Button>
       </div>
 
       <div className="flex flex-col gap-3">

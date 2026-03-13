@@ -23,6 +23,7 @@ import {
   addIntegrityToResult,
 } from "@/lib/verification-engine"
 import { ModeratorSynthesis } from "./moderator-synthesis"
+import { ZKProofPanel } from "./zk-proof-panel"
 import type { VerificationResult, LayerStatus, SentenceAnnotation } from "@/lib/types"
 
 const INITIAL_RESULT: VerificationResult = {
@@ -39,6 +40,7 @@ const INITIAL_RESULT: VerificationResult = {
 export function LexcryptumDashboard() {
   const [result, setResult] = useState<VerificationResult>(INITIAL_RESULT)
   const [annotations, setAnnotations] = useState<SentenceAnnotation[]>([])
+  const [sourceText, setSourceText] = useState<string>('')
 
   const updateLayerStatus = useCallback((index: number, status: LayerStatus) => {
     setResult((prev) => {
@@ -51,6 +53,7 @@ export function LexcryptumDashboard() {
   const handleVerify = useCallback(async (sourceText: string, query: string) => {
     setResult({ ...INITIAL_RESULT, overallStatus: "processing" })
     setAnnotations([])
+    setSourceText(sourceText)
 
     try {
       // Layer 1: Neuro-Symbolic
@@ -153,6 +156,14 @@ export function LexcryptumDashboard() {
               {/* Certificate */}
               {isComplete && <CertificatePanel result={result} />}
 
+              {/* ZK Proof Panel — real cryptographic proof from document content */}
+              {isComplete && sourceText && (
+                <ZKProofPanel
+                  documentContent={sourceText}
+                  verificationScore={Math.round((result.layer2?.score ?? 0.8) * 100)}
+                />
+              )}
+
               {/* Empty State */}
               {result.overallStatus === "idle" && (
                 <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card px-8 py-16">
@@ -177,7 +188,7 @@ export function LexcryptumDashboard() {
       <footer className="border-t border-border px-6 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <p className="text-[10px] text-muted-foreground">
-            LexAxiom v1.0.0 &mdash; 5-Layer Verifiable Legal Intelligence
+            LEX AXIOM v1.0.0 &mdash; 5-Layer Verifiable Legal Intelligence
           </p>
           <p className="text-[10px] text-muted-foreground">
             Powered by Z3 SMT Solver, CrewAI, MAPIE, EZKL

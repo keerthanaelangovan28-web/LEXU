@@ -22,7 +22,7 @@ export interface AuthSession {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcryptjs.genSalt(10)
+  const salt = await bcryptjs.genSalt(12) // 12 rounds — secure for legal-grade auth
   return bcryptjs.hash(password, salt)
 }
 

@@ -10,7 +10,7 @@ export function LexcryptumHeader() {
           <Shield className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-black tracking-tighter text-neon shadow-primary/20" style={{ color: '#00B4FF' }}>LexAxiom</h1>
+          <h1 className="text-xl font-black tracking-tighter text-neon shadow-primary/20" style={{ color: '#00B4FF' }}>LEX AXIOM</h1>
           <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#64748B' }}>Neural Verification Engine</p>
         </div>
       </div>
@@ -24,3 +24,4 @@ export function LexcryptumHeader() {
     </header>
   )
 }
+

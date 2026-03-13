@@ -125,7 +125,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg neon-glow" style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)' }}>
                 <Shield className="h-5 w-5 text-white" />
               </div>
-              <span className="text-lg font-bold text-neon" style={{ color: '#00B4FF' }}>LexAxiom</span>
+              <span className="text-lg font-bold text-neon" style={{ color: '#00B4FF' }}>LEX AXIOM</span>
             </div>
           </SidebarHeader>
 
@@ -197,7 +197,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             style={{ background: 'rgba(3, 7, 18, 0.8)', borderBottom: '1px solid rgba(0, 180, 255, 0.2)' }}
           >
             <div className="flex items-center justify-between px-6 py-4">
-              <h1 className="text-2xl font-black tracking-tight text-neon" style={{ color: '#00B4FF' }}>LexAxiom Dashboard</h1>
+              <h1 className="text-2xl font-black tracking-tight text-neon" style={{ color: '#00B4FF' }}>LEX AXIOM Dashboard</h1>
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-success neon-glow animate-pulse" />
                 <div className="text-xs font-bold uppercase tracking-widest" style={{ color: '#00B4FF' }}>

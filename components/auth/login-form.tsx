@@ -7,17 +7,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp'
-import { Lock, Mail, AlertCircle } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { MFALoginPrompt } from '@/components/auth/mfa-login-prompt'
+import { Lock, AlertCircle } from 'lucide-react'
 
 export function LoginForm() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [mfaToken, setMfaToken] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [mfaRequired, setMfaRequired] = useState(false)
+
+  // Standard password change — allow any characters
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,7 +37,7 @@ export function LoginForm() {
         body: JSON.stringify({
           email,
           password,
-          mfaToken: mfaRequired ? mfaToken : undefined,
+          rememberMe,
         }),
       })
 
@@ -49,6 +55,7 @@ export function LoginForm() {
 
       // Redirect to dashboard
       router.push('/dashboard')
+      router.refresh()
     } catch (err) {
       setError('An error occurred. Please try again.')
       console.error(err)
@@ -66,7 +73,7 @@ export function LoginForm() {
               <Lock className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>LexAxiom</CardTitle>
+          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>LEX AXIOM</CardTitle>
           <CardDescription className="text-center">
             {mfaRequired ? 'Enter your authenticator code' : 'Sign in to your account'}
           </CardDescription>
@@ -74,9 +81,9 @@ export function LoginForm() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <Alert className="border-red-500 bg-red-50">
-                <AlertCircle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              <Alert className="border-red-500/50 bg-red-950/30">
+                <AlertCircle className="h-4 w-4 text-red-400" />
+                <AlertDescription className="text-red-400">{error}</AlertDescription>
               </Alert>
             )}
 
@@ -94,41 +101,37 @@ export function LoginForm() {
                     required
                   />
                 </div>
+
+                {/* Password field — proper 8+ char password */}
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-slate-200">Password</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder="Your password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handlePasswordChange}
                     className="border-slate-600 bg-slate-700 text-white placeholder:text-slate-400"
                     required
+                    minLength={8}
                   />
+                </div>
+
+                {/* BUG 1 FIX: Remember Me checkbox */}
+                <div className="flex items-center gap-2 pt-1">
+                  <Checkbox
+                    id="rememberMe"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                    className="border-slate-500 data-[state=checked]:bg-cyan-500 data-[state=checked]:border-cyan-500"
+                  />
+                  <Label htmlFor="rememberMe" className="text-sm text-slate-300 cursor-pointer">
+                    Remember me for 30 days
+                  </Label>
                 </div>
               </>
             ) : (
-              <div className="space-y-4">
-                <div className="flex justify-center">
-                  <InputOTP
-                    maxLength={6}
-                    value={mfaToken}
-                    onChange={setMfaToken}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} className="border-slate-600 bg-slate-700 text-white" />
-                      <InputOTPSlot index={1} className="border-slate-600 bg-slate-700 text-white" />
-                      <InputOTPSlot index={2} className="border-slate-600 bg-slate-700 text-white" />
-                      <InputOTPSlot index={3} className="border-slate-600 bg-slate-700 text-white" />
-                      <InputOTPSlot index={4} className="border-slate-600 bg-slate-700 text-white" />
-                      <InputOTPSlot index={5} className="border-slate-600 bg-slate-700 text-white" />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <p className="text-xs text-slate-400 text-center">
-                  Or use a backup code (8 characters)
-                </p>
-              </div>
+              <MFALoginPrompt onCancel={() => setMfaRequired(false)} />
             )}
 
             <Button
@@ -136,7 +139,15 @@ export function LoginForm() {
               disabled={isLoading}
               className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white"
             >
-              {isLoading ? 'Signing in...' : mfaRequired ? 'Verify Code' : 'Sign In'}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Signing in…
+                </span>
+              ) : 'Sign In'}
             </Button>
 
             <p className="text-center text-sm text-slate-400">
@@ -151,3 +162,5 @@ export function LoginForm() {
     </div>
   )
 }
+
+

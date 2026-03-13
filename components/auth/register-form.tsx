@@ -29,6 +29,21 @@ export function RegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Client-side password validation
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      return
+    }
+    if (!/[a-zA-Z]/.test(formData.password) || !/[0-9]/.test(formData.password)) {
+      setError('Password must contain at least one letter and one number')
+      return
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -70,7 +85,7 @@ export function RegisterForm() {
               </div>
               <h2 className="text-3xl font-black text-neon" style={{ color: '#00B4FF' }}>Success!</h2>
               <p style={{ color: '#A0AEC0' }}>
-                Your neural profile has been created. Syncing with LexAxiom...
+                Your neural profile has been created. Redirecting to login…
               </p>
             </div>
           </CardContent>
@@ -88,7 +103,7 @@ export function RegisterForm() {
               <UserPlus className="h-8 w-8 text-white" />
             </div>
           </div>
-          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>Join LexAxiom</CardTitle>
+          <CardTitle className="text-center text-3xl font-black tracking-tighter text-neon" style={{ color: '#00B4FF' }}>Join LEX AXIOM</CardTitle>
           <CardDescription className="text-center" style={{ color: '#A0AEC0' }}>
             Initialize your cryptographic verification profile
           </CardDescription>
@@ -130,27 +145,30 @@ export function RegisterForm() {
               />
             </div>
 
+            {/* Password field */}
             <div className="space-y-2">
-              <Label htmlFor="password" style={{ color: '#F0F9FF', fontWeight: 600 }}>Neural Passkey</Label>
+              <Label htmlFor="password" style={{ color: '#F0F9FF', fontWeight: 600 }}>Password</Label>
               <Input
                 id="password"
                 name="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Min 8 chars, include a number"
                 value={formData.password}
                 onChange={handleChange}
                 className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
                 required
+                minLength={8}
               />
+              <p className="text-xs" style={{ color: '#64748B' }}>At least 8 characters with one letter and one number</p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword" style={{ color: '#F0F9FF', fontWeight: 600 }}>Verify Passkey</Label>
+              <Label htmlFor="confirmPassword" style={{ color: '#F0F9FF', fontWeight: 600 }}>Confirm Password</Label>
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Re-enter your password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 className="h-12 border-slate-700 bg-black/20 text-white placeholder:text-slate-500 focus:border-neon focus:ring-neon"
@@ -164,7 +182,15 @@ export function RegisterForm() {
               className="w-full h-12 font-black text-lg neon-glow transition-all hover:scale-[1.02]"
               style={{ background: 'linear-gradient(135deg, #00B4FF, #3399FF)', color: '#030712' }}
             >
-              {isLoading ? 'INITIALIZING...' : 'CREATE ACCOUNT'}
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  INITIALIZING…
+                </span>
+              ) : 'CREATE ACCOUNT'}
             </Button>
 
             <p className="text-center text-sm" style={{ color: '#64748B' }}>
